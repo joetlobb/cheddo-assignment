@@ -1,8 +1,22 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import { Dispatch } from 'redux';
+
 import './App.css';
 import logo from './assets/logo.png';
+import { fetchTasks } from './store/actions';
+import * as types from './store/types';
 
-class App extends Component<React.HTMLAttributes<HTMLDivElement>, {}> {
+type Props = ReturnType<typeof mapStateToProps> &
+  ReturnType<typeof mapDispatchToProps>;
+
+export class App extends Component<Props> {
+
+  componentDidMount() {
+    this.props.onInitIngredients();
+    console.log(this.props);
+  };
+
   render() {
     return (
       <div className="container">
@@ -38,4 +52,14 @@ class App extends Component<React.HTMLAttributes<HTMLDivElement>, {}> {
   }
 }
 
-export default App;
+const mapStateToProps = (state: types.RootState) => {
+
+};
+
+const mapDispatchToProps = (dispatch: Dispatch<types.RootAction>) => {
+  return {
+    onInitIngredients: () => dispatch(fetchTasks()),
+  };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(App);
