@@ -114,7 +114,9 @@ class App extends Component<LinkProps> {
           <div className="col-10">
             <img src={logo} alt="" width="60" height="60" id="logo-name"></img>
             <h4 id="logo-name">Cheddo Technology</h4>
-            <p style={{border: '1px solid #ccc', margin: '0 120px', boxShadow: '1px 2px #ccc'}}>Created by Gulyapas Poonkawinsiri. <a href="https://github.com/joetlobb/React-Front-End-Test">Github Source Code</a></p>
+            <p style={{border: '1px solid #ccc', margin: '0 10vw', 
+            boxShadow: '1px 2px #ccc', borderRadius: '7px'}}
+            >Created by Gulyapas Poonkawinsiri. <a href="https://github.com/joetlobb/cheddo-assignment">Github Source Code</a></p>
           </div>
           <div className="col-12">
             <h5>Task Name</h5>
