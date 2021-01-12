@@ -1,12 +1,12 @@
 import { createStore, combineReducers, applyMiddleware, compose } from
   'redux';
 import thunk, { ThunkMiddleware } from 'redux-thunk';
-import { createLogger } from 'redux-logger';
+// import { createLogger } from 'redux-logger';
 
 import { taskReducer } from './tasks/TaskReducer';
 import { AppActions } from './models/actions';
 
-const logger = createLogger();
+// const logger = createLogger();
 
 declare global {
   interface Window {
@@ -27,5 +27,7 @@ export type AppState = ReturnType<typeof rootReducer>;
 
 export const store = createStore<AppState, AppActions, {}, {}>(
   rootReducer,
-  composeEnhancers(applyMiddleware(thunk as ThunkMiddleware<AppState, AppActions>, logger))
+  composeEnhancers(applyMiddleware(thunk as ThunkMiddleware<AppState, AppActions>, 
+    // logger
+    ))
 );

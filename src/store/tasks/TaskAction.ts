@@ -2,8 +2,7 @@ import { Dispatch } from 'redux';
 
 import { AppActions } from '../models/actions';
 
-import { FETCH_TASKS_REQUEST, FETCH_TASKS_SUCCESS, FETCH_TASKS_FAILED, ADD_TASK, REMOVE_TASK, DELETE_TASK } from './models/actions';
-import { Task } from './models/task';
+import { FETCH_TASKS_REQUEST, FETCH_TASKS_SUCCESS, FETCH_TASKS_FAILED, ADD_TASK, REMOVE_TASK, EDIT_TASK } from './models/actions';
 
 interface ResData {
   userId: number;
@@ -20,15 +19,13 @@ const requestTasks = (): AppActions => ({
   logs: []
 });
 
-const receiveTasks = (tasks: Task[]): AppActions => {
-  const logs: string[] = [];
-  tasks.map((task: Task) => logs.push('create - ' + task.title))
+const receiveTasks = (tasks: ResData[]): AppActions => {
   return {
     type: FETCH_TASKS_SUCCESS,
     loading: false,
     tasks: tasks,
     error: '',
-    logs: logs
+    logs: []
   }
 };
 
@@ -54,9 +51,13 @@ export const addTask = (taskName: string) => ({
     type: ADD_TASK,
     task: taskName
 });
-export const removeTask = () => ({
-    type: REMOVE_TASK,
+export const editTask = (taskName: string, taskId: number) => ({
+    type: EDIT_TASK,
+    task: taskName,
+    id: taskId
 });
-export const deleteTask = () => ({
-    type: DELETE_TASK,
+export const removeTask = (taskName: string, taskId: number) => ({
+    type: REMOVE_TASK,
+    task: taskName,
+    id: taskId
 });

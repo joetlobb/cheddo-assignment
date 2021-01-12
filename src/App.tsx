@@ -10,30 +10,23 @@ import { AppState } from './store/rootStore';
 import { AppActions } from './store/models/actions';
 
 import { Task } from './store/tasks/models/task';
-import { boundRequestTasks, addTask } from './store/tasks/TaskAction';
+import { boundRequestTasks, addTask, editTask, removeTask } from './store/tasks/TaskAction';
 
-interface Props {}
+interface Props {};
 
 interface LinkStateProps {
-  tasks?: Task[];
-  logs?: string[];
-}
+  tasks: Task[];
+  logs?: [{method: string, title: string}];
+};
 
 interface LinkDispatchProps {
   boundRequestTasks: () => void;
   addTask: (taskName: string) => void;
-  // removeTask: () => void;
-  // deleteTask: () => void;
-}
+  editTask: (taskName: string, taskId: number) => void;
+  removeTask: (taskName: string, taskId: number) => void;
+};
 
 type LinkProps = Props & LinkStateProps & LinkDispatchProps;
-
-// import * as actions from './store/actions';
-// import * as types from './store/types';
-// import { thunkSendMessage } from './store/thunks';
-
-// type Props = ReturnType<typeof mapStateToProps> &
-//   ReturnType<typeof mapDispatchToProps>;
 
 const mapStateToProps = (state: AppState): LinkStateProps => {
   return {
@@ -48,6 +41,8 @@ const mapDispatchToProps = (
   return {
     boundRequestTasks: bindActionCreators(boundRequestTasks, dispatch),
     addTask: bindActionCreators(addTask, dispatch),
+    editTask: bindActionCreators(editTask, dispatch),
+    removeTask: bindActionCreators(removeTask, dispatch)
   };
 };
 
@@ -63,43 +58,35 @@ class App extends Component<LinkProps> {
   };
 
   onCreateTask = () => {
-    this.props.addTask(this.state.input);
-    // this.props.addTask({
-    //   userId: 0,
-    //   id: 0,
-    //   title: this.state.input,
-    //   completed: false,
-    // });
-    // if (this.state.input !== '') {
-    //   if (!this.state.isEditing) {
-    //     this.props.onAddTask(this.state.input, this.state.isEditing);
-    //   } else {
-    //     this.props.onEditTask(this.state.input, this.state.taskId);
-    //   }
-    //   this.setState({ input: '', isEditing: false });
-    // }
-    // return;
+    if (this.state.input !== '') {
+      if (!this.state.isEditing) {
+        this.props.addTask(this.state.input);
+      } else {
+        this.props.editTask(this.state.input, this.state.taskId);
+      }
+      this.setState({ input: '', isEditing: false });
+    }
+    return;
   };
 
   onRemoveTask = () => {
-    // this.props.onRemoveTask(this.state.input, this.state.taskId);
-    // this.setState({ input: '', isEditing: false });
+    this.props.removeTask(this.state.input, this.state.taskId);
+    this.setState({ input: '', isEditing: false });
   };
 
   onEditTask = (taskName: string, id: number) => {
-    // this.setState({ input: taskName, isEditing: true, taskId: id });
+    this.setState({ input: taskName, isEditing: true, taskId: id });
   };
 
   render() {
     let taskList: any = [];
     if (this.props.tasks) {
       const { tasks } = this.props;
-      // console.log(tasks);
       taskList = tasks.map((task: Task, id: number) => (
         <p
           key={'task.title' + Math.random()}
           id="pList"
-          // onClick={() => this.onEditTask(task.title, id)}
+          onClick={() => this.onEditTask(task.title, id)}
         >
           {`${id + 1}. ${task.title}`}
         </p>
@@ -109,13 +96,14 @@ class App extends Component<LinkProps> {
     let activityLists: any = [];
     if (this.props.logs) {
       const { logs } = this.props;
-      activityLists = logs.map((activity: string, id: number) => (
+      const logLists: any = logs;
+      activityLists = logLists.map((activity: {method: string, title: string}, id: number) => (
         <p
           key={'activity' + Math.random()}
           id="pList"
-          // onClick={() => this.onEditTask(task.title, id)}
-        >
-          {activity}
+        ><span className={activity.method === 'create' ? 'spanCreate' 
+        : activity.method === 'update' ? 'spanEdit' : 'spanRemove'}>{activity.method}</span>
+          {' - ' + activity.title}
         </p>
       ));
     }
@@ -126,6 +114,7 @@ class App extends Component<LinkProps> {
           <div className="col-10">
             <img src={logo} alt="" width="60" height="60" id="logo-name"></img>
             <h4 id="logo-name">Cheddo Technology</h4>
+            <p style={{border: '1px solid #ccc', margin: '0 120px', boxShadow: '1px 2px #ccc'}}>Created by Gulyapas Poonkawinsiri. <a href="https://github.com/joetlobb/React-Front-End-Test">Github Source Code</a></p>
           </div>
           <div className="col-12">
             <h5>Task Name</h5>
@@ -165,18 +154,7 @@ class App extends Component<LinkProps> {
         </div>
       </div>
     );
-  }
-}
-
-//   return {
-//     // onLoadTasks: () => dispatch(thunkSendMessage()),
-//     onAddTask: (taskName: string, isEditing: boolean) =>
-//       dispatch(actions.addTask(taskName, isEditing)),
-//     onEditTask: (taskName: string, taskId: number) =>
-//       dispatch(actions.editTask(taskName, taskId)),
-//     onRemoveTask: (taskName: string, taskId: number) =>
-//       dispatch(actions.removeTask(taskName, taskId)),
-//   };
-// };
+  };
+};
 
 export default connect(mapStateToProps, mapDispatchToProps)(App);

@@ -125,6 +125,21 @@ button {
   margin: 0;
 }
 
+span.spanCreate {
+  text-decoration: underline;
+  color: black;
+}
+
+span.spanEdit {
+  text-decoration: underline;
+  color: blue;
+}
+
+span.spanRemove {
+  text-decoration: underline;
+  color: #156815;
+}
+
 @media (max-width: 520px) {
   #logo-name:first-child {
     margin: 0 auto 0.7rem;
