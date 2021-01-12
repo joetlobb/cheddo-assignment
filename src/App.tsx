@@ -1,77 +1,124 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Dispatch } from 'redux';
+import { bindActionCreators } from 'redux';
+import { ThunkDispatch } from 'redux-thunk';
 
 import './App.css';
 import logo from './assets/logo.png';
-import * as actions from './store/actions';
-import * as types from './store/types';
+
+import { AppState } from './store/rootStore';
+import { AppActions } from './store/models/actions';
+
+import { Task } from './store/tasks/models/task';
+import { boundRequestTasks, addTask } from './store/tasks/TaskAction';
+
+interface Props {}
+
+interface LinkStateProps {
+  tasks?: Task[];
+  logs?: string[];
+}
+
+interface LinkDispatchProps {
+  boundRequestTasks: () => void;
+  addTask: (taskName: string) => void;
+  // removeTask: () => void;
+  // deleteTask: () => void;
+}
+
+type LinkProps = Props & LinkStateProps & LinkDispatchProps;
+
+// import * as actions from './store/actions';
+// import * as types from './store/types';
 // import { thunkSendMessage } from './store/thunks';
 
-type Props = ReturnType<typeof mapStateToProps> &
-  ReturnType<typeof mapDispatchToProps>;
+// type Props = ReturnType<typeof mapStateToProps> &
+//   ReturnType<typeof mapDispatchToProps>;
 
-export class App extends Component<Props> {
+const mapStateToProps = (state: AppState): LinkStateProps => {
+  return {
+    tasks: state.taskReducer.tasks,
+    logs: state.taskReducer.logs,
+  };
+};
+
+const mapDispatchToProps = (
+  dispatch: ThunkDispatch<AppState, {}, AppActions>
+) => {
+  return {
+    boundRequestTasks: bindActionCreators(boundRequestTasks, dispatch),
+    addTask: bindActionCreators(addTask, dispatch),
+  };
+};
+
+class App extends Component<LinkProps> {
   state = { input: '', isEditing: false, taskId: 0 };
 
   componentDidMount() {
-    // this.props.onLoadTasks();
-    // console.log('1')
+    this.props.boundRequestTasks();
   }
 
   inputChangeHandler = (taskName: string) => {
     this.setState({ input: taskName });
   };
 
-  onCreateTask = (e: any) => {
-    e.preventDefault();
-    if (this.state.input !== '') {
-      if (!this.state.isEditing) {
-        this.props.onAddTask(this.state.input, this.state.isEditing);
-      } else {
-        this.props.onEditTask(this.state.input, this.state.taskId);
-      }
-      this.setState({ input: '', isEditing: false });
-    }
-    return;
+  onCreateTask = () => {
+    this.props.addTask(this.state.input);
+    // this.props.addTask({
+    //   userId: 0,
+    //   id: 0,
+    //   title: this.state.input,
+    //   completed: false,
+    // });
+    // if (this.state.input !== '') {
+    //   if (!this.state.isEditing) {
+    //     this.props.onAddTask(this.state.input, this.state.isEditing);
+    //   } else {
+    //     this.props.onEditTask(this.state.input, this.state.taskId);
+    //   }
+    //   this.setState({ input: '', isEditing: false });
+    // }
+    // return;
   };
 
   onRemoveTask = () => {
-    this.props.onRemoveTask(this.state.input, this.state.taskId);
-    this.setState({ input: '', isEditing: false });
+    // this.props.onRemoveTask(this.state.input, this.state.taskId);
+    // this.setState({ input: '', isEditing: false });
   };
 
   onEditTask = (taskName: string, id: number) => {
-    this.setState({ input: taskName, isEditing: true, taskId: id });
+    // this.setState({ input: taskName, isEditing: true, taskId: id });
   };
 
   render() {
-    let todoLists = null;
-    let tasks: any = {};
-    tasks = this.props.taskList;
-    todoLists = tasks.tasks.map((task: { title: string }, id: number) => (
-      <p
-        key={'task.title' + Math.random()}
-        id="pList"
-        onClick={() => this.onEditTask(task.title, id)}
-      >
-        {task.title}
-      </p>
-    ));
+    let taskList: any = [];
+    if (this.props.tasks) {
+      const { tasks } = this.props;
+      // console.log(tasks);
+      taskList = tasks.map((task: Task, id: number) => (
+        <p
+          key={'task.title' + Math.random()}
+          id="pList"
+          // onClick={() => this.onEditTask(task.title, id)}
+        >
+          {`${id + 1}. ${task.title}`}
+        </p>
+      ));
+    }
 
-    let activityLists = null;
-    let activities: any = {};
-    activities = this.props.taskList;
-    // activities = activities.logs;
-    activityLists = activities.logs.map((activity: string, id: number) => (
-      <p
-        key={'activity' + Math.random()}
-        id="pList"
-        // onClick={() => this.onEditTask(task.title, id)}
-      >
-        {activity}
-      </p>
-    ));
+    let activityLists: any = [];
+    if (this.props.logs) {
+      const { logs } = this.props;
+      activityLists = logs.map((activity: string, id: number) => (
+        <p
+          key={'activity' + Math.random()}
+          id="pList"
+          // onClick={() => this.onEditTask(task.title, id)}
+        >
+          {activity}
+        </p>
+      ));
+    }
 
     return (
       <div className="container">
@@ -92,7 +139,7 @@ export class App extends Component<Props> {
             <button
               type="button"
               className="btn btn-warning"
-              onClick={(e) => this.onCreateTask(e)}
+              onClick={this.onCreateTask}
             >
               {this.state.isEditing ? 'Edit' : 'Button'}
             </button>
@@ -109,7 +156,7 @@ export class App extends Component<Props> {
         <div className="row justify-content-center">
           <div className="col-6 col-sm-6 col-md-6 col-lg-6">
             <h5>Todo List</h5>
-            <div id="list">{todoLists}</div>
+            <div id="list">{taskList}</div>
           </div>
           <div className="col-6 col-sm-6 col-md-6 col-lg-6">
             <h5>Activity List</h5>
@@ -121,22 +168,15 @@ export class App extends Component<Props> {
   }
 }
 
-const mapStateToProps = (state: types.RootState) => {
-  return {
-    taskList: state.tasks,
-  };
-};
-
-const mapDispatchToProps = (dispatch: Dispatch<types.RootAction>) => {
-  return {
-    // onLoadTasks: () => dispatch(thunkSendMessage()),
-    onAddTask: (taskName: string, isEditing: boolean) =>
-      dispatch(actions.addTask(taskName, isEditing)),
-    onEditTask: (taskName: string, taskId: number) =>
-      dispatch(actions.editTask(taskName, taskId)),
-    onRemoveTask: (taskName: string, taskId: number) =>
-      dispatch(actions.removeTask(taskName, taskId)),
-  };
-};
+//   return {
+//     // onLoadTasks: () => dispatch(thunkSendMessage()),
+//     onAddTask: (taskName: string, isEditing: boolean) =>
+//       dispatch(actions.addTask(taskName, isEditing)),
+//     onEditTask: (taskName: string, taskId: number) =>
+//       dispatch(actions.editTask(taskName, taskId)),
+//     onRemoveTask: (taskName: string, taskId: number) =>
+//       dispatch(actions.removeTask(taskName, taskId)),
+//   };
+// };
 
 export default connect(mapStateToProps, mapDispatchToProps)(App);
